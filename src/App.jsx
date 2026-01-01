@@ -17,6 +17,9 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showLoginRequired, setShowLoginRequired] = useState(false);
   const [globalSearchTerm, setGlobalSearchTerm] = useState('');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('darkMode') === 'true';
+  });
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -34,6 +37,24 @@ function App() {
       localStorage.removeItem('currentUser');
     }
   }, [currentUser]);
+
+  // Handle dark mode class on body
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    localStorage.setItem('darkMode', isDarkMode);
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    if (!currentUser) {
+      setShowLoginRequired(true);
+      return;
+    }
+    setIsDarkMode(!isDarkMode);
+  };
 
   const handleNavigate = (page, data = null) => {
     // Check if page requires authentication
@@ -138,6 +159,7 @@ function App() {
             currentUser={currentUser}
             onShowAuth={handleShowAuth}
             searchTerm={globalSearchTerm}
+            onShowAuthRequired={() => setShowLoginRequired(true)}
           />
         );
       case 'reports':
@@ -145,7 +167,7 @@ function App() {
       case 'insights':
         return <PlaceholderPage icon="💡" title="Insights" description="AI-powered insights and recommendations coming soon" onNavigate={handleNavigate} />;
       case 'settings':
-        return <Settings onNavigate={handleNavigate} />;
+        return <Settings onNavigate={handleNavigate} isDarkMode={isDarkMode} onToggleDarkMode={toggleDarkMode} currentUser={currentUser} onShowAuthRequired={() => setShowLoginRequired(true)} />;
       case 'help':
         return <PlaceholderPage icon="❓" title="Help & Support" description="Documentation and support resources coming soon" onNavigate={handleNavigate} />;
       default:

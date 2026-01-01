@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function Settings({ onNavigate }) {
+export default function Settings({ onNavigate, isDarkMode, onToggleDarkMode, currentUser, onShowAuthRequired }) {
     const [settings, setSettings] = useState([
         {
             id: 1,
@@ -21,7 +21,7 @@ export default function Settings({ onNavigate }) {
             title: 'Dark Mode',
             description: 'Switch between light and dark themes.',
             icon: '🌙',
-            enabled: false
+            enabled: isDarkMode
         },
         {
             id: 4,
@@ -39,7 +39,29 @@ export default function Settings({ onNavigate }) {
         }
     ]);
 
+    // Synchronize settings state with isDarkMode prop
+    useEffect(() => {
+        setSettings(prev => prev.map(s =>
+            s.title === 'Dark Mode' ? { ...s, enabled: isDarkMode } : s
+        ));
+    }, [isDarkMode]);
+
     const toggleSetting = (id) => {
+        // Find the setting
+        const setting = settings.find(s => s.id === id);
+
+        // If it's Dark Mode, use the special handler
+        if (setting && setting.title === 'Dark Mode') {
+            onToggleDarkMode();
+            return;
+        }
+
+        // Restrict other settings too if not logged in
+        if (!currentUser) {
+            onShowAuthRequired();
+            return;
+        }
+
         setSettings(settings.map(setting =>
             setting.id === id ? { ...setting, enabled: !setting.enabled } : setting
         ));

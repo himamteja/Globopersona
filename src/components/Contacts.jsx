@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export default function Contacts({ currentUser, onShowAuth, searchTerm }) {
+export default function Contacts({ currentUser, onShowAuth, searchTerm, onShowAuthRequired }) {
     const [filterSegment, setFilterSegment] = useState('all');
     const [showModal, setShowModal] = useState(false);
     const [newContact, setNewContact] = useState({
@@ -217,8 +217,14 @@ export default function Contacts({ currentUser, onShowAuth, searchTerm }) {
                     </p>
                 </div>
                 <div className="page-header-actions">
-                    <button className="btn btn-outline">📥 Import Contacts</button>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Contact</button>
+                    <button className="btn btn-outline" onClick={() => !currentUser ? onShowAuthRequired() : null}>📥 Import Contacts</button>
+                    <button className="btn btn-primary" onClick={() => {
+                        if (!currentUser) {
+                            onShowAuthRequired();
+                        } else {
+                            setShowModal(true);
+                        }
+                    }}>+ Add Contact</button>
                 </div>
             </div>
 
@@ -343,7 +349,13 @@ export default function Contacts({ currentUser, onShowAuth, searchTerm }) {
                     <p className="empty-description">
                         Try adjusting your search or filter criteria, or add a new contact.
                     </p>
-                    <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add First Contact</button>
+                    <button className="btn btn-primary" onClick={() => {
+                        if (!currentUser) {
+                            onShowAuthRequired();
+                        } else {
+                            setShowModal(true);
+                        }
+                    }}>+ Add First Contact</button>
                 </div>
             )}
         </div>
